@@ -365,9 +365,18 @@ var filters = {
     },
 
     urlize: function(str, length, nofollow) {
+        var attributes = {};
+        if (nofollow === true)
+          attributes["rel"] = "nofollow";
+
+        if (typeof length === "object") {
+          for (var key in length) {
+            attributes[key] = length[key];
+          }
+        }
+
         if (isNaN(length)) length = Infinity;
 
-        var noFollowAttr = (nofollow === true ? ' rel="nofollow"' : '');
 
         // For the jinja regexp, see
         // https://github.com/mitsuhiko/jinja2/blob/f15b814dcba6aa12bc74d1f7d0c881d55f7126be/jinja2/utils.py#L20-L23
@@ -389,11 +398,11 @@ var filters = {
 
           // url that starts with http or https
           if (httpHttpsRE.test(possibleUrl))
-            return '<a href="' + possibleUrl + '"' + noFollowAttr + '>' + possibleUrl.substr(0, length) + '</a>';
+            return '<a href="' + possibleUrl + '"' + serializeAttributes() + '>' + possibleUrl.substr(0, length) + '</a>';
 
           // url that starts with www.
           if (wwwRE.test(possibleUrl))
-            return '<a href="http://' + possibleUrl + '"' + noFollowAttr + '>' + possibleUrl.substr(0, length) + '</a>';
+            return '<a href="http://' + possibleUrl + '"' + serializeAttributes() + '>' + possibleUrl.substr(0, length) + '</a>';
 
           // an email address of the form username@domain.tld
           if (emailRE.test(possibleUrl))
@@ -401,13 +410,22 @@ var filters = {
 
           // url that ends in .com, .org or .net that is not an email address
           if (tldRE.test(possibleUrl))
-            return '<a href="http://' + possibleUrl + '"' + noFollowAttr + '>' + possibleUrl.substr(0, length) + '</a>';
+            return '<a href="http://' + possibleUrl + '"' + serializeAttributes() + '>' + possibleUrl.substr(0, length) + '</a>';
 
           return possibleUrl;
-
         });
 
         return words.join(' ');
+
+        function serializeAttributes() {
+          var attributeArray = [];
+          for (var key in attributes) {
+            attributeArray.push(key + '="' + attributes[key] + '"');
+          }
+          var attrString = attributeArray.join(" ");
+          if (attrString) return " " + attrString;
+          return "";
+        }
     },
 
     wordcount: function(str) {

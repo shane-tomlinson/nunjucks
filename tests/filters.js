@@ -379,6 +379,10 @@
             equal('{{ "testuser@testuser.com" | urlize }}',
                 '<a href="mailto:testuser@testuser.com">testuser@testuser.com</a>');
 
+            // specify attributes to add to the anchor
+            equal('{{ "testuser.com" | urlize({target:"_blank"}) }}',
+                '<a href="http://testuser.com" target="_blank">testuser.com</a>');
+
             finish(done);
         });
 
